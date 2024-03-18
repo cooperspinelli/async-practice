@@ -22,3 +22,27 @@ async function showNumberRace() {
   console.log(winnerData["text"]);
 }
 
+async function showNumberAll() {
+  const numsForTrivia = [1, 2, 3, 4];
+
+  const request1 = fetch(`${BASE_API_URL}${numsForTrivia[0]}?json`);
+  const request2 = fetch(`${BASE_API_URL}${numsForTrivia[1]}?json`);
+  const request3 = fetch(`${BASE_API_URL}${numsForTrivia[2]}?json`);
+  const request4 = fetch(`${BASE_API_URL}WRONG?json`);
+
+  const all = await Promise.allSettled([request1, request2, request3, request4]);
+  const fulfilled = [];
+  const rejected = [];
+
+  for (let response of all){
+    if (response.value.ok){
+      const responseData = await response.value.json()
+      fulfilled.push(responseData["text"]);
+    } else {
+      rejected.push(`Request failed: ${response.value.status}`)
+    }
+  }
+
+console.log(fulfilled);
+console.log(rejected);
+}
