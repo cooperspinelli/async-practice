@@ -2,47 +2,47 @@
 
 const BASE_API_URL = "http://numbersapi.com/";
 
-async function showNumbersTrivia() {
-  const favNumber = 5;
-  const resp = await fetch(`${BASE_API_URL}${favNumber}?json`);
+
+/** Makes request to number trivia api and logs trivia */
+async function showNumberTrivia(favNum) {
+  const resp = await fetch(`${BASE_API_URL}${favNum}?json`);
   const respData = await resp.json();
-  console.log(respData["text"]);
+  console.log(`ShowNumberTrivia: ${respData.text}`);
 }
 
-async function showNumberRace() {
-  const numsForTrivia = [1, 2, 3, 4];
-
-  const request1 = fetch(`${BASE_API_URL}${numsForTrivia[0]}?json`);
-  const request2 = fetch(`${BASE_API_URL}${numsForTrivia[1]}?json`);
-  const request3 = fetch(`${BASE_API_URL}${numsForTrivia[2]}?json`);
-  const request4 = fetch(`${BASE_API_URL}${numsForTrivia[3]}?json`);
-
-  const winner = await Promise.race([request1, request2, request3, request4]);
+/** Makes multiple requests to number trivia api and logs the first response */
+async function showNumberRace(numsForTrivia) {
+  const requests = numsForTrivia.map(num => fetch(`${BASE_API_URL}${num}?json`));
+  const winner = await Promise.race(requests);
   const winnerData = await winner.json();
-  console.log(winnerData["text"]);
+  console.log(`ShowNumberRace: ${winnerData.text}`);
 }
 
-async function showNumberAll() {
-  const numsForTrivia = [1, 2, 3, 4];
+/** Makes multiple requests to number trivia api logs allthe responses */
+async function showNumberAll(numsForTrivia) {
+  const requests = numsForTrivia.map(num => fetch(`${BASE_API_URL}${num}?json`));
+  const all = await Promise.allSettled(requests);
 
-  const request1 = fetch(`${BASE_API_URL}${numsForTrivia[0]}?json`);
-  const request2 = fetch(`${BASE_API_URL}${numsForTrivia[1]}?json`);
-  const request3 = fetch(`${BASE_API_URL}${numsForTrivia[2]}?json`);
-  const request4 = fetch(`${BASE_API_URL}WRONG?json`);
-
-  const all = await Promise.allSettled([request1, request2, request3, request4]);
   const fulfilled = [];
   const rejected = [];
 
-  for (let response of all){
-    if (response.value.ok){
-      const responseData = await response.value.json()
-      fulfilled.push(responseData["text"]);
+  for (let response of all) {
+    if (response.value.ok) {
+      const responseData = await response.value.json();
+      fulfilled.push(responseData.text);
     } else {
-      rejected.push(`Request failed: ${response.value.status}`)
+      rejected.push(`Request failed: ${response.value.status}`);
     }
   }
 
-console.log(fulfilled);
-console.log(rejected);
+  console.log(`ShowNumberAll fulfilled: ${fulfilled}`);
+  console.log(`ShowNumberAll rejected: ${rejected}`);
+}
+
+/** Calls all three functions in order, waiting for each to resolve
+ * before calling the next */
+async function main() {
+  await showNumberTrivia(5);
+  await showNumberRace([1,2,3,4]);
+  await showNumberAll([1,2,3,"WRONG"]);
 }
