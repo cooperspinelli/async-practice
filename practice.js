@@ -43,6 +43,18 @@ async function showNumberAll(numsForTrivia) {
  * before calling the next */
 async function main() {
   await showNumberTrivia(5);
-  await showNumberRace([1,2,3,4]);
-  await showNumberAll([1,2,3,"WRONG"]);
+  await showNumberRace([1, 2, 3, 4]);
+  await showNumberAll([1, 2, 3, "WRONG"]);
+}
+
+async function getNewDeckId() {
+  const response = await fetch(`https://deckofcardsapi.com/api/deck/new/shuffle`);
+  const responseData = await response.json();
+  return responseData.deck_id;
+}
+
+async function drawACard(deck_id) {
+  const response = await fetch(`https://deckofcardsapi.com/api/deck/${deck_id}/draw/?count=1`)
+  const responseData = await response.json();
+  return responseData.cards[0].image;
 }
